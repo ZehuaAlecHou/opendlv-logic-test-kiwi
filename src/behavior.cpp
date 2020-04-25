@@ -72,6 +72,8 @@ void Behavior::setRightIr(opendlv::proxy::VoltageReading const &rightIrReading) 
 
 void Behavior::step() noexcept
 {
+  cluon::data::TimeStamp currentTime = cluon::time::now();
+  int64_t currentTimeUs = cluon::time::toMicroseconds(currentTime);
   opendlv::proxy::DistanceReading frontUltrasonicReading;
   opendlv::proxy::DistanceReading rearUltrasonicReading;
   opendlv::proxy::VoltageReading leftIrReading;
