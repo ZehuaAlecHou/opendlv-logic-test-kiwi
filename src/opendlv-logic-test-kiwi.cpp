@@ -1,23 +1,6 @@
-/*
- * Copyright (C) 2018 Ola Benderius
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "cluon-complete.hpp"
 #include "opendlv-standard-message-set.hpp"
-#include "behavior.hpp"
+#include "logic.hpp"
 
 int32_t main(int32_t argc, char **argv) {
   int32_t retCode{0};
@@ -33,44 +16,20 @@ int32_t main(int32_t argc, char **argv) {
     float const FREQ = std::stof(commandlineArguments["freq"]);
 
     Behavior behavior;
-
-    auto onDistanceReading{[&behavior](cluon::data::Envelope &&envelope)
-      {
-        auto distanceReading = cluon::extractMessage<opendlv::proxy::DistanceReading>(std::move(envelope));
-        uint32_t const senderStamp = envelope.senderStamp();
-        if (senderStamp == 0) {
-          behavior.setFrontUltrasonic(distanceReading);
-        } else if (senderStamp == 1) {
-          behavior.setRearUltrasonic(distanceReading);
-        }
-      }};
-    auto onVoltageReading{[&behavior](cluon::data::Envelope &&envelope)
-      {
-        auto voltageReading = cluon::extractMessage<opendlv::proxy::VoltageReading>(std::move(envelope));
-        uint32_t const senderStamp = envelope.senderStamp();
-        if (senderStamp == 0) {
-          behavior.setLeftIr(voltageReading);
-        } else if (senderStamp == 1) {
-          behavior.setRightIr(voltageReading);
-        }
-      }};
-
     cluon::OD4Session od4{CID};
-    od4.dataTrigger(opendlv::proxy::DistanceReading::ID(), onDistanceReading);
-    od4.dataTrigger(opendlv::proxy::VoltageReading::ID(), onVoltageReading);
 
-    auto atFrequency{[&VERBOSE, &behavior, &od4]() -> bool
+    auto atFrequency{[&VERBOSE, &logic, &od4]() -> bool
       {
-        behavior.step();
-        auto groundSteeringAngleRequest = behavior.getGroundSteeringAngle();
-        auto pedalPositionRequest = behavior.getPedalPositionRequest();
+        logic.step();
+        auto leftWheelSpeedRequest = logic.getLeftWheelSpeedRequest();
+        auto rightWheelSpeedRequest = logic.getRightWheelSpeedRequest();
 
         cluon::data::TimeStamp sampleTime = cluon::time::now();
-        od4.send(groundSteeringAngleRequest, sampleTime, 0);
-        od4.send(pedalPositionRequest, sampleTime, 0);
+        od4.send(leftWheelSpeedRequest, sampleTime, 0);
+        od4.send(rightWheelSpeedRequest, sampleTime, 0);
         if (VERBOSE) {
-          std::cout << "Ground steering angle is " << groundSteeringAngleRequest.groundSteering()
-            << " and pedal position is " << pedalPositionRequest.position() << std::endl;
+          std::cout << "Left wheel speed is " << leftWheelSpeedRequest.speed()
+            << " and right wheel speed is " << rightWheelSpeedRequest.speed() << std::endl;
         }
 
         return true;
