@@ -1,11 +1,11 @@
 /* opendlv-logic-test-kiwi
- * behavior.cpp
+ * logic.cpp
  * Zehua Hou
  */
  
-#include "behavior.hpp"
+#include "logic.hpp"
 
-Behavior::Behavior() noexcept:
+Logic::Logic() noexcept:
   m_leftWheelSpeedRequest{},
   m_rightWheelSpeedRequest{},
   m_leftWheelSpeedRequestMutex{},
@@ -14,18 +14,18 @@ Behavior::Behavior() noexcept:
 {
 }
 
-opendlv::proxy::LeftWheelSpeedRequest Behavior::getLeftWheelSpeedRequest() noexcept
+opendlv::proxy::LeftWheelSpeedRequest Logic::getLeftWheelSpeedRequest() noexcept
 {
   std::lock_guard<std::mutex> lock(m_leftWheelSpeedRequestMutex);
   return m_leftWheelSpeedRequest;
 }
-opendlv::proxy::RightWheelSpeedRequest Behavior::getRightWheelSpeedRequest() noexcept
+opendlv::proxy::RightWheelSpeedRequest Logic::getRightWheelSpeedRequest() noexcept
 {
   std::lock_guard<std::mutex> lock(m_rightWheelSpeedRequestMutex);
   return m_rightWheelSpeedRequest;
 }
 
-void Behavior::step() noexcept
+void Logic::step() noexcept
 {
   cluon::data::TimeStamp currentTime = cluon::time::now();
   int64_t currentTimeUs = cluon::time::toMicroseconds(currentTime);
