@@ -4,23 +4,23 @@
  * Zehua Hou
  */
 
-#ifndef BEHAVIOR
-#define BEHAVIOR
+#ifndef LOGIC
+#define LOGIC
 
 #include <mutex>
 
 #include "opendlv-standard-message-set.hpp"
 
-class Behavior {
+class Logic {
  private:
-  Behavior(Behavior const &) = delete;
-  Behavior(Behavior &&) = delete;
-  Behavior &operator=(Behavior const &) = delete;
-  Behavior &operator=(Behavior &&) = delete;
+  Logic(Logic const &) = delete;
+  Logic(Logic &&) = delete;
+  Logic &operator=(Logic const &) = delete;
+  Logic &operator=(Logic &&) = delete;
 
  public:
-  Behavior() noexcept;
-  ~Behavior() = default;
+  Logic() noexcept;
+  ~Logic() = default;
 
  public:
   opendlv::proxy::LeftWheelSpeedRequest getLeftWheelSpeedRequest() noexcept;
