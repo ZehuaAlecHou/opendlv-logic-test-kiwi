@@ -15,18 +15,20 @@ int32_t main(int32_t argc, char **argv) {
     uint16_t const CID = std::stoi(commandlineArguments["cid"]);
     float const FREQ = std::stof(commandlineArguments["freq"]);
 
-    Behavior behavior;
+    Logic logic;
     cluon::OD4Session od4{CID};
+    
+    cluon::data::TimeStamp t0 = cluon::time::now();
 
-    auto atFrequency{[&VERBOSE, &logic, &od4]() -> bool
+    auto atFrequency{[&VERBOSE, &logic, &od4,t0]() -> bool
       {
-        logic.step();
+        logic.step(t0);
         auto leftWheelSpeedRequest = logic.getLeftWheelSpeedRequest();
         auto rightWheelSpeedRequest = logic.getRightWheelSpeedRequest();
 
         cluon::data::TimeStamp sampleTime = cluon::time::now();
         od4.send(leftWheelSpeedRequest, sampleTime, 0);
-        od4.send(rightWheelSpeedRequest, sampleTime, 0);
+        od4.send(rightWheelSpeedRequest, sampleTime, 1);
         if (VERBOSE) {
           std::cout << "Left wheel speed is " << leftWheelSpeedRequest.speed()
             << " and right wheel speed is " << rightWheelSpeedRequest.speed() << std::endl;
