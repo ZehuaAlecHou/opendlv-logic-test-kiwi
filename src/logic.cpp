@@ -25,21 +25,23 @@ opendlv::proxy::RightWheelSpeedRequest Logic::getRightWheelSpeedRequest() noexce
   return m_rightWheelSpeedRequest;
 }
 
-void Logic::step() noexcept
+void Logic::step(cluon::data::TimeStamp t0) noexcept
 {
   cluon::data::TimeStamp currentTime = cluon::time::now();
   int64_t currentTimeUs = cluon::time::toMicroseconds(currentTime);
+  int64_t startTimeUs = cluon::time::toMicroseconds(t0);
+  float t = (currentTimeUs-startTimeUs)/1000000.0f;
   float leftWheelSpeed = 0.0f;
   float rightWheelSpeed = 0.0f;
   float t1 = 3.0f;
   float t2 = 10.0f;
   float v0 = 0.5f;
   
-  if (currentTimeUs <= t1) {
-    rightWheelSpeed = v0*currentTimeUs/t1;
+  if (t <= t1) {
+    rightWheelSpeed = v0*t/t1;
   } else {
-    if (currentTimeUs <= t2) {
-    leftWheelSpeed = v0*(currentTimeUs-t1)/t2;
+    if (t <= t2) {
+    leftWheelSpeed = v0*(t-t1)/t2;
     rightWheelSpeed = v0;
     }
   }
